@@ -7,3 +7,5 @@ const connectDB = async () => {
 };
 
 module.exports = connectDB;
+
+// S6nJXaTtROGImgiK
