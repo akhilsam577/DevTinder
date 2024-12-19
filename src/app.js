@@ -10,52 +10,58 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-app.post("/signup", async (req, res) => {
-  try {
-    const { firstName, lastName, emailId, password, skills } = req.body;
-    const passwordHash = await bcrypt.hash(password, 10);
-    validateSignUpData(req);
-    const user = new User({
-      firstName,
-      lastName,
-      emailId,
-      skills,
-      password: passwordHash,
-    });
-    user.save();
-    res.send("new user added successfully to DataBase");
-  } catch (err) {
-    res.status(400).send(err.message);
-  }
-});
+const authRouter = require("./routes/auth");
+const { profileRouter } = require("./routes/profile");
 
-app.post("/login", async (req, res) => {
-  try {
-    const { emailId, password } = req.body;
-    console.log("email:", emailId);
-    console.log("pwd:", password);
+app.use("/", authRouter);
+app.use("/", profileRouter);
 
-    const user = await User.findOne({ emailId: emailId });
+// app.post("/signup", async (req, res) => {
+//   try {
+//     const { firstName, lastName, emailId, password, skills } = req.body;
+//     const passwordHash = await bcrypt.hash(password, 10);
+//     validateSignUpData(req);
+//     const user = new User({
+//       firstName,
+//       lastName,
+//       emailId,
+//       skills,
+//       password: passwordHash,
+//     });
+//     user.save();
+//     res.send("new user added successfully to DataBase");
+//   } catch (err) {
+//     res.status(400).send(err.message);
+//   }
+// });
 
-    if (!user) {
-      return res.status(401).send("Invalid Credentials");
-    }
+// app.post("/login", async (req, res) => {
+//   try {
+//     const { emailId, password } = req.body;
+//     console.log("email:", emailId);
+//     console.log("pwd:", password);
 
-    const isValidUser = user.validatePassword(password);
+//     const user = await User.findOne({ emailId: emailId });
 
-    if (isValidUser) {
-      const token = await user.getJWT();
+//     if (!user) {
+//       return res.status(401).send("Invalid Credentials");
+//     }
 
-      res.cookie("token", token);
-      res.send("Login successful");
-    } else {
-      res.status(401).send("Invaliddd credentials");
-    }
-  } catch (err) {
-    console.log("Error:", err);
-    res.status(500).send("Something wenttt wrong");
-  }
-});
+//     const isValidUser = user.validatePassword(password);
+
+//     if (isValidUser) {
+//       const token = await user.getJWT();
+
+//       res.cookie("token", token);
+//       res.send("Login successful");
+//     } else {
+//       res.status(401).send("Invaliddd credentials");
+//     }
+//   } catch (err) {
+//     console.log("Error:", err);
+//     res.status(500).send("Something wenttt wrong");
+//   }
+// });
 
 app.get("/feed", async (req, res) => {
   const usersData = await User.find({});
@@ -67,14 +73,14 @@ app.get("/feed", async (req, res) => {
   }
 });
 // here userAuth is the middleware we used for authintication and coded in middlewares
-app.get("/profile", userAuth, async (req, res) => {
-  //   const cookies = req.cookies;
-  //   const { token } = cookies;
-  //   const decodedToken = jwt.verify(token, "devTinder@577");
-  //   console.log("decodedToken", decodedToken);
-  //   console.log("Token", token);
-  res.send("reading cookies");
-});
+// app.get("/profile", userAuth, async (req, res) => {
+//   //   const cookies = req.cookies;
+//   //   const { token } = cookies;
+//   //   const decodedToken = jwt.verify(token, "devTinder@577");
+//   //   console.log("decodedToken", decodedToken);
+//   //   console.log("Token", token);
+//   res.send("reading cookies");
+// });
 
 app.get("/user", userAuth, async (req, res) => {
   //   const userEmailId = req.body.emailId;
