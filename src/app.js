@@ -1,6 +1,6 @@
 const express = require("express");
 const connectDB = require("./config/database");
-const User = require("./modules/user");
+const User = require("./models/user");
 const { validateSignUpData } = require("./utils/validation");
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
@@ -11,57 +11,11 @@ app.use(express.json());
 app.use(cookieParser());
 
 const authRouter = require("./routes/auth");
-const { profileRouter } = require("./routes/profile");
-
+const profileRouter = require("./routes/profile");
+const requestRouter = require("./routes/request");
+app.use("/", requestRouter);
 app.use("/", authRouter);
 app.use("/", profileRouter);
-
-// app.post("/signup", async (req, res) => {
-//   try {
-//     const { firstName, lastName, emailId, password, skills } = req.body;
-//     const passwordHash = await bcrypt.hash(password, 10);
-//     validateSignUpData(req);
-//     const user = new User({
-//       firstName,
-//       lastName,
-//       emailId,
-//       skills,
-//       password: passwordHash,
-//     });
-//     user.save();
-//     res.send("new user added successfully to DataBase");
-//   } catch (err) {
-//     res.status(400).send(err.message);
-//   }
-// });
-
-// app.post("/login", async (req, res) => {
-//   try {
-//     const { emailId, password } = req.body;
-//     console.log("email:", emailId);
-//     console.log("pwd:", password);
-
-//     const user = await User.findOne({ emailId: emailId });
-
-//     if (!user) {
-//       return res.status(401).send("Invalid Credentials");
-//     }
-
-//     const isValidUser = user.validatePassword(password);
-
-//     if (isValidUser) {
-//       const token = await user.getJWT();
-
-//       res.cookie("token", token);
-//       res.send("Login successful");
-//     } else {
-//       res.status(401).send("Invaliddd credentials");
-//     }
-//   } catch (err) {
-//     console.log("Error:", err);
-//     res.status(500).send("Something wenttt wrong");
-//   }
-// });
 
 app.get("/feed", async (req, res) => {
   const usersData = await User.find({});
@@ -72,15 +26,6 @@ app.get("/feed", async (req, res) => {
     res.status(404).send("something wnet wrong!");
   }
 });
-// here userAuth is the middleware we used for authintication and coded in middlewares
-// app.get("/profile", userAuth, async (req, res) => {
-//   //   const cookies = req.cookies;
-//   //   const { token } = cookies;
-//   //   const decodedToken = jwt.verify(token, "devTinder@577");
-//   //   console.log("decodedToken", decodedToken);
-//   //   console.log("Token", token);
-//   res.send("reading cookies");
-// });
 
 app.get("/user", userAuth, async (req, res) => {
   //   const userEmailId = req.body.emailId;
@@ -146,3 +91,50 @@ connectDB()
   .catch((err) => {
     console.error("cannot connect to database");
   });
+
+// app.post("/signup", async (req, res) => {
+//   try {
+//     const { firstName, lastName, emailId, password, skills } = req.body;
+//     const passwordHash = await bcrypt.hash(password, 10);
+//     validateSignUpData(req);
+//     const user = new User({
+//       firstName,
+//       lastName,
+//       emailId,
+//       skills,
+//       password: passwordHash,
+//     });
+//     user.save();
+//     res.send("new user added successfully to DataBase");
+//   } catch (err) {
+//     res.status(400).send(err.message);
+//   }
+// });
+
+// app.post("/login", async (req, res) => {
+//   try {
+//     const { emailId, password } = req.body;
+//     console.log("email:", emailId);
+//     console.log("pwd:", password);
+
+//     const user = await User.findOne({ emailId: emailId });
+
+//     if (!user) {
+//       return res.status(401).send("Invalid Credentials");
+//     }
+
+//     const isValidUser = user.validatePassword(password);
+
+//     if (isValidUser) {
+//       const token = await user.getJWT();
+
+//       res.cookie("token", token);
+//       res.send("Login successful");
+//     } else {
+//       res.status(401).send("Invaliddd credentials");
+//     }
+//   } catch (err) {
+//     console.log("Error:", err);
+//     res.status(500).send("Something wenttt wrong");
+//   }
+// });
