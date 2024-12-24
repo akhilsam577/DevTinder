@@ -49,7 +49,7 @@ requestRouter.post(
       });
       const data = await connectionRequest.save();
       res.send({
-        message: status == "intrested" ? "request sent" : "request ignored",
+        message: status == "interested" ? "request sent" : "request ignored",
         data,
       });
     } catch (err) {

@@ -3,6 +3,8 @@ const User = require("../models/user");
 const { validateSignUpData } = require("../utils/validation");
 const authRouter = express.Router();
 const bcrypt = require("bcrypt");
+const USER_SAFE_DATA =
+  "firstName lastName emailId age skills gender password photoUrl";
 
 authRouter.post("/signup", async (req, res) => {
   try {
@@ -29,25 +31,27 @@ authRouter.post("/login", async (req, res) => {
     console.log("email:", emailId);
     console.log("pwd:", password);
 
-    const user = await User.findOne({ emailId: emailId });
+    const user = await User.findOne({ emailId: emailId }).select(
+      USER_SAFE_DATA
+    );
 
     if (!user) {
       return res.status(401).send("Invalid Credentials");
     }
 
-    const isValidUser = user.validatePassword(password);
+    const isValidUser = await user.validatePassword(password);
 
     if (isValidUser) {
       const token = await user.getJWT();
 
       res.cookie("token", token);
-      res.send("Login successful");
+      res.send(user);
     } else {
-      res.status(401).send("Invaliddd credentials");
+      res.status(401).send("Invalid credentials");
     }
   } catch (err) {
     console.log("Error:", err);
-    res.status(500).send("Something wenttt wrong");
+    res.status(500).send("Something went wrong");
   }
 });
 
